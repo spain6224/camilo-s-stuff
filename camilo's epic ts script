@@ -84,9 +84,14 @@ local tabs = {
 
 ---BOXES
 local mainbox = tabs.main:AddLeftGroupbox('Main')
+local rightmainbox = tabs.main:AddRightTabbox('Misc')
 local visbox = tabs.vis:AddLeftGroupbox('Visuals')
-local orebox = tabs.vis:AddLeftGroupbox('Ore visuals')
+local orebox = tabs.vis:AddRightTabbox('Ore visuals')
 local settsbox = tabs.setts:AddLeftGroupbox('Settings')
+
+local ore = orebox:AddTab('Ores')
+local combatmisc = rightmainbox:AddTab('Misc')
+
 
 ---TOGGLES
 mainbox:AddToggle('silent aim', {
@@ -97,7 +102,15 @@ mainbox:AddToggle('silent aim', {
     Callback = function() return end 
 })
 
-mainbox:AddToggle('eoka', {
+combatmisc:AddToggle('nospread', {
+    Text = 'No spread',
+    Default = false ,
+    Tooltip = 'No spread for eoka',
+
+    Callback = function() getgenv().godeoka = not getgenv().godeoka end 
+})
+
+combatmisc:AddToggle('eoka', {
     Text = 'Good Eoka',
     Default = false ,
     Tooltip = 'No spread for eoka',
@@ -135,7 +148,7 @@ visbox:AddToggle('noleaves', {
 	end 
 })
 
-orebox:AddToggle('oreesp', {
+ore:AddToggle('oreesp', {
     Text = 'Ore chams',
     Default = false ,
     Tooltip = '',
