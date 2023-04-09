@@ -7,6 +7,7 @@ local wtvp = CurrentCamera.worldToViewportPoint
 local camera = game:GetService("Workspace").CurrentCamera
 local orefolder = Instance.new("Folder", workspace)
 orefolder.Name = 'orefolder'
+local spread;
 
 local ores = {
 	['sulfur'] = Color3.fromRGB(248, 248, 248),
@@ -102,14 +103,6 @@ mainbox:AddToggle('silent aim', {
     Callback = function() return end 
 })
 
-combatmisc:AddToggle('nospread', {
-    Text = 'No spread',
-    Default = false ,
-    Tooltip = 'No spread for eoka',
-
-    Callback = function() getgenv().godeoka = not getgenv().godeoka end 
-})
-
 combatmisc:AddToggle('eoka', {
     Text = 'Good Eoka',
     Default = false ,
@@ -195,7 +188,7 @@ mainbox:AddSlider('zoomrange', {
     end
 })
 
-local norec = mainbox:AddButton({
+local norec = combatmisc:AddButton({
     Text = 'No Recoil',
     Func = function()
         for i,v in next, game:GetService("ReplicatedStorage").ItemConfigs:GetChildren() do
@@ -218,8 +211,21 @@ local norec = mainbox:AddButton({
 	req.HipRecoil.cameraY = 0	
 	end end end end,
     DoubleClick = false,
-    Tooltip = 'No recoilS'
+    Tooltip = 'No recoils'
 })
+
+local nospread = combatmisc:AddButton({
+    Text = 'No spread',
+    Func = function()
+        for i,v in next, game:GetService("ReplicatedStorage").ItemConfigs:GetChildren() do
+			local module = require(v)
+			module.Accuracy = 999999
+		end
+	end,
+    DoubleClick = false,
+    Tooltip = 'No spreads'
+})
+
 
 --CODE
 
@@ -260,6 +266,21 @@ end end)
 
 task.spawn(function()
     while task.wait(0.2) do
+		if getgenv().nospread == true then
+			for i,v in next, game:GetService("ReplicatedStorage").ItemConfigs:GetChildren() do
+				local module = require(v)
+				module.Accuracy = 999999
+			end
+		else
+			local blunder = game:GetService("ReplicatedStorage").ItemConfigs.Blunderbuss
+			local required = require(blunder)
+			required.Accuracy = 1400
+		end	
+        if lib.Unloaded then break end
+end end)
+
+task.spawn(function()
+    while task.wait(0.2) do
 		if getgenv().godeoka == true then
 			local blunder = game:GetService("ReplicatedStorage").ItemConfigs.Blunderbuss
 			local required = require(blunder)
@@ -271,6 +292,7 @@ task.spawn(function()
 		end	
         if lib.Unloaded then break end
 end end)
+
 
 task.spawn(function()
     while task.wait(0.2) do
