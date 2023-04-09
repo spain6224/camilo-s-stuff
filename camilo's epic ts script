@@ -1,1 +1,421 @@
 
+local startTime = tick()
+local lib = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/Library.lua'))() 
+local saver = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/addons/SaveManager.lua'))()
+local CurrentCamera = workspace.CurrentCamera
+local wtvp = CurrentCamera.worldToViewportPoint
+local camera = game:GetService("Workspace").CurrentCamera
+local orefolder = Instance.new("Folder", workspace)
+orefolder.Name = 'orefolder'
+
+local ores = {
+	['sulfur'] = Color3.fromRGB(248, 248, 248),
+	['iron'] = Color3.fromRGB(199, 172, 120),
+}
+
+for i,v in next, workspace:GetChildren() do
+	if v:FindFirstChildWhichIsA('MeshPart') and v:FindFirstChildWhichIsA('MeshPart').Color == Color3.fromRGB(105, 102, 92) then
+		for i2,v2 in next, v:GetChildren() do 
+			v2.Parent.Parent = orefolder
+			if v2.Color ~= Color3.fromRGB(105, 102, 92) then
+				local highlight = Instance.new("Highlight", v2)
+				highlight.Adornee = v2
+				highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+				highlight.Enabled = true
+				if v2.Color == ores['sulfur'] then
+					print('Sulfur')
+					highlight.FillColor = Color3.fromRGB(248, 248, 248)
+					highlight.FillTransparency = 0
+					highlight.OutlineColor = Color3.fromRGB(248, 248, 248)
+				elseif v2.Color == ores['iron'] then
+					print('Iron')
+					highlight.FillColor = Color3.fromRGB(199, 172, 120)
+					highlight.FillTransparency = 0
+					highlight.OutlineColor = Color3.fromRGB(199, 172, 120)
+				end	
+			end
+		end
+	end	
+end
+
+getgenv().noleaves = false
+getgenv().boxesp = false
+getgenv().namesp = false
+getgenv().zoom = 60
+getgenv().godeoka = false
+getgenv().oreesp = false
+
+local char = getrenv()._G.modules.Character
+local player = getrenv()._G.modules.Player
+local cam = getrenv()._G.modules.Camera
+local cc = workspace.CurrentCamera
+--NOT IMPORTANT
+local mainwin = lib:CreateWindow({
+	Title = 'camilo\'s epic ts script',
+	Center = true,
+	AutoShow = true,
+	TabPadding = 8,
+})
+
+lib:SetWatermarkVisibility(true)
+
+task.spawn(function ()
+	while task.wait() do
+		lib:SetWatermark('camilo\'s epic ts script \124 '..os.date("%H:%M"))
+	end
+end)
+
+
+lib.KeybindFrame.Visible = true;
+
+lib:OnUnload(function()
+    lib.Unloaded = true
+end)
+
+---TABS
+local tabs = {
+ 	main = mainwin:AddTab('Main'),
+ 	vis = mainwin:AddTab('Visuals'),
+	
+	--Settings should always be the last one
+	setts = mainwin:AddTab('Settings')
+}
+
+
+---BOXES
+local mainbox = tabs.main:AddLeftGroupbox('Main')
+local visbox = tabs.vis:AddLeftGroupbox('Visuals')
+local orebox = tabs.vis:AddLeftGroupbox('Ore visuals')
+local settsbox = tabs.setts:AddLeftGroupbox('Settings')
+
+---TOGGLES
+mainbox:AddToggle('silent aim', {
+    Text = 'Silent aim /i cant hook :(/',
+    Default = false ,
+    Tooltip = '?',
+
+    Callback = function() return end 
+})
+
+mainbox:AddToggle('eoka', {
+    Text = 'Good Eoka',
+    Default = false ,
+    Tooltip = 'No spread for eoka',
+
+    Callback = function() getgenv().godeoka = not getgenv().godeoka end 
+})
+
+visbox:AddToggle('boxesp', {
+    Text = 'Box esp',
+    Default = false ,
+    Tooltip = '',
+
+    Callback = function() 
+		getgenv().boxesp = not getgenv().boxesp
+	end 
+})
+
+visbox:AddToggle('nameesp', {
+    Text = 'Name esp',
+    Default = false ,
+    Tooltip = 'not actually name esp somehow',
+
+    Callback = function() 
+		getgenv().namesp = not getgenv().namesp
+	end 
+})
+
+visbox:AddToggle('noleaves', {
+    Text = 'Remove leaves',
+    Default = false ,
+    Tooltip = '',
+
+    Callback = function() 
+		getgenv().noleaves = not getgenv().noleaves
+	end 
+})
+
+orebox:AddToggle('oreesp', {
+    Text = 'Ore chams',
+    Default = false ,
+    Tooltip = '',
+
+    Callback = function() 
+		getgenv().oreesp = not getgenv().oreesp
+	end 
+})
+
+
+---KEYBINDS
+mainbox:AddLabel('Noclip'):AddKeyPicker('noclipkey', {
+    Default = 'Z',
+    SyncToggleState = false,
+    Mode = 'Hold',
+    Text = 'Noclip',
+    NoUI = false,
+    Callback = function(Value)
+        char.SetNoclipping(Value)
+    end,
+    ChangedCallback = function(New) return end
+})
+
+mainbox:AddLabel('Zoom'):AddKeyPicker('zoomkey', {
+    Default = 'X',
+    SyncToggleState = false,
+    Mode = 'Hold',
+    Text = 'Zoom',
+    NoUI = false,
+    Callback = function(Value) return end,
+    ChangedCallback = function(New) return end
+})
+
+mainbox:AddSlider('zoomrange', {
+    Text = 'Zoom range',
+    Default = getgenv().zoom,
+    Min = 1,
+    Max = 120,
+    Rounding = 0,
+    Compact = false,
+
+    Callback = function(Value)
+        getgenv().zoom = Value
+    end
+})
+
+local norec = mainbox:AddButton({
+    Text = 'No Recoil',
+    Func = function()
+        for i,v in next, game:GetService("ReplicatedStorage").ItemConfigs:GetChildren() do
+	if v:IsA('ModuleScript') then
+	local req = require(v)
+	if req.AimRecoil then
+	req.AimRecoil.cameraX = 0
+	req.AimRecoil.rotSpeed = 0
+	req.AimRecoil.rotMag = 0
+	req.AimRecoil.returnTime = 0
+	req.AimRecoil.push = 0
+	req.AimRecoil.retirnLerp = 0
+	req.AimRecoil.cameraY = 0
+	req.HipRecoil.cameraX = 0
+	req.HipRecoil.rotSpeed = 0
+	req.HipRecoil.rotMag = 0
+	req.HipRecoil.returnTime = 0
+	req.HipRecoil.push = 0
+	req.HipRecoil.retirnLerp = 0
+	req.HipRecoil.cameraY = 0	
+	end end end end,
+    DoubleClick = false,
+    Tooltip = 'No recoilS'
+})
+
+--CODE
+
+task.spawn(function()
+    while task.wait() do
+        local state = Options.zoomkey:GetState()
+        if state == true then
+            cam.SetZoom(getgenv().zoom)
+		else
+			cam.SetZoom(1)
+        end
+
+        if lib.Unloaded then break end
+end end)
+
+task.spawn(function()
+    while task.wait(0.2) do
+        local state = Options.noclipkey:GetState()
+        char.SetNoclipping(state)
+        if lib.Unloaded then break end
+    end
+end)
+
+task.spawn(function()
+    while task.wait(0.2) do
+		if getgenv().noleaves == true then
+			for i,v in next, workspace:GetChildren() do
+				if v:FindFirstChild('Leaves') then
+					v.Leaves.Transparency = 1
+			end	end
+		else
+			for i,v in next, workspace:GetChildren() do
+				if v:FindFirstChild('Leaves') then
+					v.Leaves.Transparency = 0.4
+				end	end	end	
+        if lib.Unloaded then break end
+end end)
+
+task.spawn(function()
+    while task.wait(0.2) do
+		if getgenv().godeoka == true then
+			local blunder = game:GetService("ReplicatedStorage").ItemConfigs.Blunderbuss
+			local required = require(blunder)
+			required.Accuracy = 99999
+		else
+			local blunder = game:GetService("ReplicatedStorage").ItemConfigs.Blunderbuss
+			local required = require(blunder)
+			required.Accuracy = 1400
+		end	
+        if lib.Unloaded then break end
+end end)
+
+task.spawn(function()
+    while task.wait(0.2) do
+		if getgenv().oreesp == true then
+			for i,v in next, workspace.orefolder:GetChildren() do
+				for i1,v1 in next, v:GetChildren() do
+				if v1:FindFirstChild('Highlight') then
+					v1.Highlight.Enabled = true
+				end	
+				end
+			end	
+		else
+			for i,v in next, workspace.orefolder:GetChildren() do
+				for i1,v1 in next, v:GetChildren() do
+				if v1:FindFirstChild('Highlight') then
+					v1.Highlight.Enabled = false
+				end	
+				end
+			end	
+		end	
+		if lib.Unloaded then break end
+	end	
+end)
+
+
+task.spawn(function()
+    while task.wait(0.2) do
+		if getgenv().namesp == true then
+			for i,v in next, workspace:GetChildren() do
+				if v:FindFirstChild('Head') and v.Head:FindFirstChild('ESP') then
+					v.Head.ESP.Enabled = true
+					v.Head.ESP.tag.Text = 'Nigger'
+				end	end
+		else
+			for i,v in next, workspace:GetChildren() do
+				if v:FindFirstChild('Head') and v.Head:FindFirstChild('ESP') then
+					v.Head.ESP.Enabled = false
+				end	end	end	
+        if lib.Unloaded then break end
+end end)
+
+
+task.spawn(function ()
+	for index,player in next, workspace:GetChildren() do
+	if player.Parent ~= nil then
+		if player:FindFirstChild('Head') then
+			local boxoutline = Drawing.new("Square")
+			boxoutline.Thickness = 3
+			boxoutline.Transparency = 1
+			boxoutline.Color = Color3.new(255,255,255)
+			boxoutline.Filled = false
+			boxoutline.Visible = false	
+
+			local box = Drawing.new("Square")
+			box.Thickness = 3
+			box.Transparency = 1
+			box.Filled = false
+			box.Color = Color3.new(255,255,255)
+			box.Visible = false
+
+			player.AncestryChanged:Connect(function (child, parent)
+				if parent == nil then
+					box.Visible = false
+					boxoutline.Visible = false
+				end	end)
+
+	game:GetService("RunService").RenderStepped:Connect(function ()
+	if player:FindFirstChild("HumanoidRootPart") and
+	player:FindFirstChild('Head') then
+		local Vector, onScreen = wtvp(workspace.CurrentCamera, player.HumanoidRootPart.Position)
+        local rootpos, RootVis = wtvp(workspace.CurrentCamera, player.HumanoidRootPart.Position)
+        local headpos = wtvp(workspace.CurrentCamera, player.Head.Position + Vector3.new(0, 0.5, 0))
+        local legpos = wtvp(workspace.CurrentCamera, player.HumanoidRootPart.Position - Vector3.new(0,3,0))
+
+
+        if onScreen then
+            boxoutline.Size = Vector2.new(2000 / rootpos.Z, headpos.Y - legpos.Y)
+            boxoutline.Position = Vector2.new(rootpos.X - boxoutline.Size.X / 2, rootpos.Y - boxoutline.Size.Y / 2)
+            if getgenv().boxesp == true and player.Parent == workspace			 then
+			boxoutline.Visible = true
+			else
+			boxoutline.Visible = false
+			end	
+
+            box.Size = Vector2.new(2000 / rootpos.Z, headpos.Y - legpos.Y)
+            box.Position = Vector2.new(rootpos.X - box.Size.X / 2, rootpos.Y - box.Size.Y / 2)
+            if getgenv().boxesp == true and player.Parent == workspace then
+			box.Visible = true
+			else
+			box.Visible = false
+			end	
+		else
+			box.Visible = false
+			boxoutline.Visible = false
+end	end end) end end end end)
+
+
+--SETTINGS
+settsbox:AddButton('Unload', function() Library:Unload() end)
+settsbox:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'Insert', NoUI = true, Text = 'Menu keybind' })
+
+Library.ToggleKeybind = Options.MenuKeybind -- Allows you to have a custom keybind for the menu
+saver:SetLibrary(lib)
+saver:SetIgnoreIndexes({ 'MenuKeybind' })
+saver:SetFolder('camilo/trident-survival')
+saver:BuildConfigSection(tabs['setts'])
+saver:LoadAutoloadConfig()
+
+workspace.ChildAdded:Connect(function(child)
+if child.Parent ~= nil then
+	if child:FindFirstChild("Head") then
+		if child:FindFirstChild('Head') then
+			local boxoutline1 = Drawing.new("Square") boxoutline1.Thickness = 3 boxoutline1.Transparency = 1	boxoutline1.Color = Color3.new(255,255,255)	boxoutline1.Filled = false	boxoutline1.Visible = false
+			local box1 = Drawing.new("Square")	box1.Thickness = 3	box1.Transparency = 1	box1.Filled = false	box1.Color = Color3.new(255,255,255)	box1.Visible = false
+			child.AncestryChanged:Connect(function (child, parent)
+				if parent == nil then
+					box1.Visible = false
+					boxoutline1.Visible = false
+				end	end)
+
+
+	game:GetService("RunService").RenderStepped:Connect(function ()
+	if child:FindFirstChild("HumanoidRootPart") and
+	child:FindFirstChild('Head') then
+		if getgenv().boxesp == true then
+		local Vector, onScreen = wtvp(workspace.CurrentCamera, child.HumanoidRootPart.Position)
+        local rootpos, RootVis = wtvp(workspace.CurrentCamera, child.HumanoidRootPart.Position)
+        local headpos = wtvp(workspace.CurrentCamera, child.Head.Position + Vector3.new(0, 0.5, 0))
+        local legpos = wtvp(workspace.CurrentCamera, child.HumanoidRootPart.Position - Vector3.new(0,3,0))
+
+
+        if onScreen then
+            boxoutline1.Size = Vector2.new(2000 / rootpos.Z, headpos.Y - legpos.Y)
+            boxoutline1.Position = Vector2.new(rootpos.X - boxoutline1.Size.X / 2, rootpos.Y - boxoutline1.Size.Y / 2)
+		 	if getgenv().boxesp == true and player.Parent == workspace then
+			boxoutline1.Visible = true
+			else
+			boxoutline1.Visible = false
+			end	
+
+            box1.Size = Vector2.new(2000 / rootpos.Z, headpos.Y - legpos.Y)
+            box1.Position = Vector2.new(rootpos.X - box1.Size.X / 2, rootpos.Y - box1.Size.Y / 2)
+			if getgenv().boxesp == true and child.Parent == workspace then
+			box1.Visible = true
+			else
+			box1.Visible = false
+			end	
+		else
+			box1.Visible = false
+			boxoutline1.Visible = false
+		end	
+		else
+		box1.Visible = false
+		boxoutline1.Visible = false
+	end
+	else
+		box1.Visible = false
+		boxoutline1.Visible = false
+end	end) end end end end)
+
+lib:Notify(('Loaded in approximately %s second(s)'):format(('%.3f'):format(tick() - startTime)))
