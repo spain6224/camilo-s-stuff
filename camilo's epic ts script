@@ -7,13 +7,13 @@ local wtvp = CurrentCamera.worldToViewportPoint
 local camera = game:GetService("Workspace").CurrentCamera
 local orefolder = Instance.new("Folder", workspace)
 orefolder.Name = 'orefolder'
-local spread;
 
 local ores = {
 	['sulfur'] = Color3.fromRGB(248, 248, 248),
 	['iron'] = Color3.fromRGB(199, 172, 120),
 }
 
+local upateores = function()
 for i,v in next, workspace:GetChildren() do
 	if v:FindFirstChildWhichIsA('MeshPart') and v:FindFirstChildWhichIsA('MeshPart').Color == Color3.fromRGB(105, 102, 92) then
 		for i2,v2 in next, v:GetChildren() do 
@@ -38,6 +38,7 @@ for i,v in next, workspace:GetChildren() do
 		end
 	end	
 end
+end
 
 getgenv().noleaves = false
 getgenv().boxesp = false
@@ -45,6 +46,7 @@ getgenv().namesp = false
 getgenv().zoom = 60
 getgenv().godeoka = false
 getgenv().oreesp = false
+getgenv().autosprint = false
 
 local char = getrenv()._G.modules.Character
 local player = getrenv()._G.modules.Player
@@ -103,9 +105,17 @@ mainbox:AddToggle('silent aim', {
     Callback = function() return end 
 })
 
+combatmisc:AddToggle('sprint', {
+    Text = 'Auto sprint',
+    Default = false,
+    Tooltip = 'Makes you sprint automatically',
+
+    Callback = function() getgenv().autosprint = not getgenv().autosprint end 
+})
+
 combatmisc:AddToggle('eoka', {
     Text = 'Good Eoka',
-    Default = false ,
+    Default = false,
     Tooltip = 'No spread for eoka',
 
     Callback = function() getgenv().godeoka = not getgenv().godeoka end 
@@ -226,8 +236,30 @@ local nospread = combatmisc:AddButton({
     Tooltip = 'No spreads'
 })
 
+local nodrop = combatmisc:AddButton({
+    Text = 'No bullet drop',
+    Func = function()
+        for i,v in next, game:GetService("ReplicatedStorage").ItemConfigs:GetChildren() do
+			local module = require(v)
+			module.ProjectileDrop = 0
+		end
+	end,
+    DoubleClick = false,
+    Tooltip = 'Makes bullets go straight(fuck gay people)'
+})
+
 
 --CODE
+
+task.spawn(function()
+    while task.wait() do
+        if getgenv().autosprint == true then
+            getrenv()._G.modules.Character.Sprint(getgenv().autosprint)
+		else
+			getrenv()._G.modules.Character.Sprint(getgenv().autosprint)
+        end
+        if lib.Unloaded then break end
+end end)
 
 task.spawn(function()
     while task.wait() do
@@ -240,6 +272,13 @@ task.spawn(function()
 
         if lib.Unloaded then break end
 end end)
+
+task.spawn(function()
+    while task.wait(2) do
+        upateores()
+        if lib.Unloaded then break end
+    end
+end)
 
 task.spawn(function()
     while task.wait(0.2) do
