@@ -8,10 +8,20 @@ local camera = game:GetService("Workspace").CurrentCamera
 local orefolder = Instance.new("Folder", workspace)
 orefolder.Name = 'orefolder'
 
+local RunService = game:GetService("RunService")
+
+
 local ores = {
 	['sulfur'] = Color3.fromRGB(248, 248, 248),
 	['iron'] = Color3.fromRGB(199, 172, 120),
 }
+
+
+
+local function worldtoviewport(position)
+    local a, b = workspace.CurrentCamera:WorldToViewportPoint(position)
+    return Vector2.new(a.X, a.Y), b
+end
 
 local upateores = function()
 for i,v in next, workspace:GetChildren() do
@@ -48,6 +58,101 @@ getgenv().godeoka = false
 getgenv().oreesp = false
 getgenv().autosprint = false
 
+local nameesp = function(part,color)
+    local text = Drawing.new('Text')
+    text.Size = 16
+    text.Center = true
+    text.Color = color
+    text.Transparency = 1
+    local updateloop = RunService.RenderStepped:Connect(function()
+            if not part:IsDescendantOf(workspace) then
+                text:Remove()
+            end
+            local partpos = part.Position
+            local spos,vis = worldtoviewport(part.Position)
+            if not vis then
+                text.Visible = false
+            end
+            if getgenv().namesp == true then
+				text.Visible = vis
+				else
+				text.Visible = false
+			end	
+			text.Outline = true
+			if part.Rotation == Vector3.new(0, 0, -120) then
+				text.Text = 'Sleeper ['..math.floor((workspace.Ignore.LocalCharacter.Middle.Position - part.Position).Magnitude)..']'
+			else
+			text.Text = 'Player ['..math.floor((workspace.Ignore.LocalCharacter.Middle.Position - part.Position).Magnitude)..']'
+			end	
+            text.Position = spos
+            if not part then
+				updateloop:Disconnect()
+			end	
+        end)
+end
+
+local boxesp = function(player,color)
+    local box = Drawing.new('Square')
+    local boxoutline = Drawing.new("Square")
+    local updateloop = RunService.RenderStepped:Connect(function()
+        pcall(
+            function ()
+            if not player:IsDescendantOf(workspace) then
+                box:Remove()
+                boxoutline:Remove()
+            end
+            local root,vis = workspace.CurrentCamera:WorldToViewportPoint(player.HumanoidRootPart.Position) 
+            local factor = 1 / (root.Z * math.tan(math.rad(workspace.CurrentCamera.FieldOfView * 0.5)) * 2) * 100
+            local w,h = math.floor(40 * factor), math.floor(60 *  factor)
+            boxoutline.Thickness = 4
+            boxoutline.Filled = false
+            boxoutline.Color = Color3.new(0, 0, 0)
+            boxoutline.Transparency = 1
+            boxoutline.Size = Vector2.new(w,h)
+            boxoutline.Position = Vector2.new(root.X - box.Size.X / 2,root.Y - box.Size.Y / 2)
+            boxoutline.ZIndex = 420
+
+			if getgenv().boxesp == true then
+			box.Visible = vis
+			boxoutline.Visible = vis
+				else
+			box.Visible = false
+			boxoutline.Visible = false
+			end	
+
+            
+            box.Thickness = 2
+            box.Filled = false
+            box.Color = color
+            box.Transparency = 1
+            box.Size = Vector2.new(w,h)
+            box.Position = Vector2.new(root.X - box.Size.X / 2,root.Y - box.Size.Y / 2)
+            box.ZIndex = 421
+            if not player then
+                box:Remove()
+                boxoutline:Remove()
+                updateloop:Disconnect()
+            end    
+            end)
+        end)
+end
+
+for i,v in next,game:GetService('Workspace'):GetChildren() do
+    if v:FindFirstChild('Head') then
+        boxesp(v, Color3.new(255, 255, 255))
+		nameesp(v.Head, Color3.new(255, 255, 255))
+    end    
+end
+
+workspace.ChildAdded:Connect(function (v)
+	if v:FindFirstChild('Head') then
+		boxesp(v, Color3.new(255, 255, 255))
+		nameesp(v.Head, Color3.new(255, 255, 255))
+	end	
+end)
+
+
+
 local char = getrenv()._G.modules.Character
 local player = getrenv()._G.modules.Player
 local cam = getrenv()._G.modules.Camera
@@ -61,6 +166,9 @@ local mainwin = lib:CreateWindow({
 })
 
 lib:SetWatermarkVisibility(true)
+
+
+
 
 task.spawn(function ()
 	while task.wait() do
@@ -236,18 +344,6 @@ local nospread = combatmisc:AddButton({
     Tooltip = 'No spreads'
 })
 
-local nodrop = combatmisc:AddButton({
-    Text = 'No bullet drop',
-    Func = function()
-        for i,v in next, game:GetService("ReplicatedStorage").ItemConfigs:GetChildren() do
-			local module = require(v)
-			module.ProjectileDrop = 0
-		end
-	end,
-    DoubleClick = false,
-    Tooltip = 'Makes bullets go straight(fuck gay people)'
-})
-
 
 --CODE
 
@@ -356,79 +452,6 @@ task.spawn(function()
 	end	
 end)
 
-
-task.spawn(function()
-    while task.wait(0.2) do
-		if getgenv().namesp == true then
-			for i,v in next, workspace:GetChildren() do
-				if v:FindFirstChild('Head') and v.Head:FindFirstChild('ESP') then
-					v.Head.ESP.Enabled = true
-					v.Head.ESP.tag.Text = 'Nigger'
-				end	end
-		else
-			for i,v in next, workspace:GetChildren() do
-				if v:FindFirstChild('Head') and v.Head:FindFirstChild('ESP') then
-					v.Head.ESP.Enabled = false
-				end	end	end	
-        if lib.Unloaded then break end
-end end)
-
-
-task.spawn(function ()
-	for index,player in next, workspace:GetChildren() do
-	if player.Parent ~= nil then
-		if player:FindFirstChild('Head') then
-			local boxoutline = Drawing.new("Square")
-			boxoutline.Thickness = 3
-			boxoutline.Transparency = 1
-			boxoutline.Color = Color3.new(255,255,255)
-			boxoutline.Filled = false
-			boxoutline.Visible = false	
-
-			local box = Drawing.new("Square")
-			box.Thickness = 3
-			box.Transparency = 1
-			box.Filled = false
-			box.Color = Color3.new(255,255,255)
-			box.Visible = false
-
-			player.AncestryChanged:Connect(function (child, parent)
-				if parent == nil then
-					box.Visible = false
-					boxoutline.Visible = false
-				end	end)
-
-	game:GetService("RunService").RenderStepped:Connect(function ()
-	if player:FindFirstChild("HumanoidRootPart") and
-	player:FindFirstChild('Head') then
-		local Vector, onScreen = wtvp(workspace.CurrentCamera, player.HumanoidRootPart.Position)
-        local rootpos, RootVis = wtvp(workspace.CurrentCamera, player.HumanoidRootPart.Position)
-        local headpos = wtvp(workspace.CurrentCamera, player.Head.Position + Vector3.new(0, 0.5, 0))
-        local legpos = wtvp(workspace.CurrentCamera, player.HumanoidRootPart.Position - Vector3.new(0,3,0))
-
-
-        if onScreen then
-            boxoutline.Size = Vector2.new(2000 / rootpos.Z, headpos.Y - legpos.Y)
-            boxoutline.Position = Vector2.new(rootpos.X - boxoutline.Size.X / 2, rootpos.Y - boxoutline.Size.Y / 2)
-            if getgenv().boxesp == true and player.Parent == workspace			 then
-			boxoutline.Visible = true
-			else
-			boxoutline.Visible = false
-			end	
-
-            box.Size = Vector2.new(2000 / rootpos.Z, headpos.Y - legpos.Y)
-            box.Position = Vector2.new(rootpos.X - box.Size.X / 2, rootpos.Y - box.Size.Y / 2)
-            if getgenv().boxesp == true and player.Parent == workspace then
-			box.Visible = true
-			else
-			box.Visible = false
-			end	
-		else
-			box.Visible = false
-			boxoutline.Visible = false
-end	end end) end end end end)
-
-
 --SETTINGS
 settsbox:AddButton('Unload', function() Library:Unload() end)
 settsbox:AddLabel('Menu bind'):AddKeyPicker('MenuKeybind', { Default = 'Insert', NoUI = true, Text = 'Menu keybind' })
@@ -440,57 +463,7 @@ saver:SetFolder('camilo/trident-survival')
 saver:BuildConfigSection(tabs['setts'])
 saver:LoadAutoloadConfig()
 
-workspace.ChildAdded:Connect(function(child)
-if child.Parent ~= nil then
-	if child:FindFirstChild("Head") then
-		if child:FindFirstChild('Head') then
-			local boxoutline1 = Drawing.new("Square") boxoutline1.Thickness = 3 boxoutline1.Transparency = 1	boxoutline1.Color = Color3.new(255,255,255)	boxoutline1.Filled = false	boxoutline1.Visible = false
-			local box1 = Drawing.new("Square")	box1.Thickness = 3	box1.Transparency = 1	box1.Filled = false	box1.Color = Color3.new(255,255,255)	box1.Visible = false
-			child.AncestryChanged:Connect(function (child, parent)
-				if parent == nil then
-					box1.Visible = false
-					boxoutline1.Visible = false
-				end	end)
 
-
-	game:GetService("RunService").RenderStepped:Connect(function ()
-	if child:FindFirstChild("HumanoidRootPart") and
-	child:FindFirstChild('Head') then
-		if getgenv().boxesp == true then
-		local Vector, onScreen = wtvp(workspace.CurrentCamera, child.HumanoidRootPart.Position)
-        local rootpos, RootVis = wtvp(workspace.CurrentCamera, child.HumanoidRootPart.Position)
-        local headpos = wtvp(workspace.CurrentCamera, child.Head.Position + Vector3.new(0, 0.5, 0))
-        local legpos = wtvp(workspace.CurrentCamera, child.HumanoidRootPart.Position - Vector3.new(0,3,0))
-
-
-        if onScreen then
-            boxoutline1.Size = Vector2.new(2000 / rootpos.Z, headpos.Y - legpos.Y)
-            boxoutline1.Position = Vector2.new(rootpos.X - boxoutline1.Size.X / 2, rootpos.Y - boxoutline1.Size.Y / 2)
-		 	if getgenv().boxesp == true and player.Parent == workspace then
-			boxoutline1.Visible = true
-			else
-			boxoutline1.Visible = false
-			end	
-
-            box1.Size = Vector2.new(2000 / rootpos.Z, headpos.Y - legpos.Y)
-            box1.Position = Vector2.new(rootpos.X - box1.Size.X / 2, rootpos.Y - box1.Size.Y / 2)
-			if getgenv().boxesp == true and child.Parent == workspace then
-			box1.Visible = true
-			else
-			box1.Visible = false
-			end	
-		else
-			box1.Visible = false
-			boxoutline1.Visible = false
-		end	
-		else
-		box1.Visible = false
-		boxoutline1.Visible = false
-	end
-	else
-		box1.Visible = false
-		boxoutline1.Visible = false
-end	end) end end end end)
 
 lib:Notify(('Loaded in approximately %s second(s)'):format(('%.3f'):format(tick() - startTime)))
 lib:Notify('All made by the greatest tridentse surivval hacker camilo ')
