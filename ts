@@ -1,4 +1,3 @@
-
 local startTime = tick()
 
 local lib = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/Library.lua'))() 
