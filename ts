@@ -98,7 +98,7 @@ local nameesp = function(part,color)
 				updateloop:Disconnect()
 			end	
         end)
-	end     
+	end)     
 end
 
 local boxesp = function(player,color)
