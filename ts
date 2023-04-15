@@ -1,7 +1,9 @@
 
 local startTime = tick()
+
 local lib = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/Library.lua'))() 
 local saver = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/addons/SaveManager.lua'))()
+local themer = loadstring(game:HttpGet('https://raw.githubusercontent.com/violin-suzutsuki/LinoriaLib/main/addons/ThemeManager.lua'))()
 local CurrentCamera = workspace.CurrentCamera
 local wtvp = CurrentCamera.worldToViewportPoint
 local camera = game:GetService("Workspace").CurrentCamera
@@ -10,6 +12,8 @@ orefolder.Name = 'orefolder'
 
 local RunService = game:GetService("RunService")
 
+
+local mcamera = getrenv()._G.modules.Camera
 
 local ores = {
 	['sulfur'] = Color3.fromRGB(248, 248, 248),
@@ -56,7 +60,8 @@ getgenv().namesp = false
 getgenv().zoom = 60
 getgenv().godeoka = false
 getgenv().oreesp = false
-getgenv().autosprint = false
+getgenv().autosprint = true
+getgenv().norecoil = false
 
 local nameesp = function(part,color)
     local text = Drawing.new('Text')
@@ -65,8 +70,10 @@ local nameesp = function(part,color)
     text.Color = color
     text.Transparency = 1
     local updateloop = RunService.RenderStepped:Connect(function()
-            if not part:IsDescendantOf(workspace) then
-                text:Remove()
+	pcall(function ()
+		if not part:IsDescendantOf(workspace) then
+				text:Destroy()
+				updateloop:Disconnect()
             end
             local partpos = part.Position
             local spos,vis = worldtoviewport(part.Position)
@@ -85,21 +92,28 @@ local nameesp = function(part,color)
 			text.Text = 'Player ['..math.floor((workspace.Ignore.LocalCharacter.Middle.Position - part.Position).Magnitude)..']'
 			end	
             text.Position = spos
+			updateloop:Disconnect()
             if not part then
+				text:Destroy()
 				updateloop:Disconnect()
 			end	
         end)
+	end     
 end
 
 local boxesp = function(player,color)
     local box = Drawing.new('Square')
     local boxoutline = Drawing.new("Square")
-    local updateloop = RunService.RenderStepped:Connect(function()
-        pcall(
-            function ()
+    local updater = RunService.RenderStepped:Connect(function()
+        pcall(function ()
             if not player:IsDescendantOf(workspace) then
-                box:Remove()
-                boxoutline:Remove()
+				if box then
+					box:Destroy()
+				end	
+				if boxoutline then
+					boxoutline:Destroy()
+					updater:Disconnect()
+				end	
             end
             local root,vis = workspace.CurrentCamera:WorldToViewportPoint(player.HumanoidRootPart.Position) 
             local factor = 1 / (root.Z * math.tan(math.rad(workspace.CurrentCamera.FieldOfView * 0.5)) * 2) * 100
@@ -129,9 +143,9 @@ local boxesp = function(player,color)
             box.Position = Vector2.new(root.X - box.Size.X / 2,root.Y - box.Size.Y / 2)
             box.ZIndex = 421
             if not player then
-                box:Remove()
+                box:Destroy()
                 boxoutline:Remove()
-                updateloop:Disconnect()
+                updater:Disconnect()
             end    
             end)
         end)
@@ -215,7 +229,7 @@ mainbox:AddToggle('silent aim', {
 
 combatmisc:AddToggle('sprint', {
     Text = 'Auto sprint',
-    Default = false,
+    Default = true,
     Tooltip = 'Makes you sprint automatically',
 
     Callback = function() getgenv().autosprint = not getgenv().autosprint end 
@@ -228,6 +242,15 @@ combatmisc:AddToggle('eoka', {
 
     Callback = function() getgenv().godeoka = not getgenv().godeoka end 
 })
+
+combatmisc:AddToggle('norecoil', {
+    Text = 'No recoil',
+    Default = false,
+    Tooltip = 'No recoil for any gun',
+
+    Callback = function() getgenv().godeoka = not getgenv().godeoka end 
+})
+
 
 visbox:AddToggle('boxesp', {
     Text = 'Box esp',
@@ -462,7 +485,9 @@ saver:SetIgnoreIndexes({ 'MenuKeybind' })
 saver:SetFolder('camilo/trident-survival')
 saver:BuildConfigSection(tabs['setts'])
 saver:LoadAutoloadConfig()
-
+themer:SetLibrary(lib)
+themer:SetFolder('camilo')
+themer:ApplyToTab(tabs['setts'])
 
 
 lib:Notify(('Loaded in approximately %s second(s)'):format(('%.3f'):format(tick() - startTime)))
