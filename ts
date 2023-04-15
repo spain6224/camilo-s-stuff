@@ -328,32 +328,6 @@ mainbox:AddSlider('zoomrange', {
     end
 })
 
-local norec = combatmisc:AddButton({
-    Text = 'No Recoil',
-    Func = function()
-        for i,v in next, game:GetService("ReplicatedStorage").ItemConfigs:GetChildren() do
-	if v:IsA('ModuleScript') then
-	local req = require(v)
-	if req.AimRecoil then
-	req.AimRecoil.cameraX = 0
-	req.AimRecoil.rotSpeed = 0
-	req.AimRecoil.rotMag = 0
-	req.AimRecoil.returnTime = 0
-	req.AimRecoil.push = 0
-	req.AimRecoil.retirnLerp = 0
-	req.AimRecoil.cameraY = 0
-	req.HipRecoil.cameraX = 0
-	req.HipRecoil.rotSpeed = 0
-	req.HipRecoil.rotMag = 0
-	req.HipRecoil.returnTime = 0
-	req.HipRecoil.push = 0
-	req.HipRecoil.retirnLerp = 0
-	req.HipRecoil.cameraY = 0	
-	end end end end,
-    DoubleClick = false,
-    Tooltip = 'No recoils'
-})
-
 local nospread = combatmisc:AddButton({
     Text = 'No spread',
     Func = function()
@@ -374,7 +348,11 @@ task.spawn(function()
         if getgenv().autosprint == true then
             getrenv()._G.modules.Character.Sprint(getgenv().autosprint)
 		else
-			getrenv()._G.modules.Character.Sprint(getgenv().autosprint)
+			local setsprint = function ()
+				getrenv()._G.modules.Character.Sprint(getgenv().autosprint)
+			end
+			setsprint = function ()
+			end
         end
         if lib.Unloaded then break end
 end end)
@@ -422,16 +400,14 @@ task.spawn(function()
 end end)
 
 task.spawn(function()
+	local old = mcamera.Recoil
     while task.wait(0.2) do
 		if getgenv().nospread == true then
-			for i,v in next, game:GetService("ReplicatedStorage").ItemConfigs:GetChildren() do
-				local module = require(v)
-				module.Accuracy = 999999
+			mcamera.Recoil = function ()
+				
 			end
 		else
-			local blunder = game:GetService("ReplicatedStorage").ItemConfigs.Blunderbuss
-			local required = require(blunder)
-			required.Accuracy = 1400
+			mcamera.Recoil = old
 		end	
         if lib.Unloaded then break end
 end end)
