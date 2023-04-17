@@ -53,20 +53,31 @@ for i,v in next, workspace:GetChildren() do
 end
 end
 
+
+getgenv().zoom = 60
+
+getgenv().autosprint = true
+
+getgenv().godeoka = false
+getgenv().norecoil = false
+
 getgenv().noleaves = false
 getgenv().boxesp = false
 getgenv().namesp = false
-getgenv().zoom = 60
-getgenv().godeoka = false
 getgenv().oreesp = false
-getgenv().autosprint = true
-getgenv().norecoil = false
+getgenv().skeletonesp = false
 
-local nameesp = function(part,color)
+getgenv().Thickness = 2
+
+
+getgenv().NameColor = Color3.new(1,1,1)
+getgenv().BoxColor = Color3.new(1, 1, 1)
+getgenv().Skelesp = Color3.new(1,1,1)
+
+local nameesp = function(part)
     local text = Drawing.new('Text')
     text.Size = 16
     text.Center = true
-    text.Color = color
     text.Transparency = 1
     local updateloop = RunService.RenderStepped:Connect(function()
 	pcall(function ()
@@ -91,6 +102,7 @@ local nameesp = function(part,color)
 			text.Text = 'Player ['..math.floor((workspace.Ignore.LocalCharacter.Middle.Position - part.Position).Magnitude)..']'
 			end	
             text.Position = spos
+            text.Color = getgenv().NameColor
 			updateloop:Disconnect()
             if not part then
 				text:Destroy()
@@ -100,7 +112,7 @@ local nameesp = function(part,color)
 	end)     
 end
 
-local boxesp = function(player,color)
+local boxesp = function(player)
     local box = Drawing.new('Square')
     local boxoutline = Drawing.new("Square")
     local updater = RunService.RenderStepped:Connect(function()
@@ -119,7 +131,6 @@ local boxesp = function(player,color)
             local w,h = math.floor(40 * factor), math.floor(60 *  factor)
             boxoutline.Thickness = 4
             boxoutline.Filled = false
-            boxoutline.Color = Color3.new(0, 0, 0)
             boxoutline.Transparency = 1
             boxoutline.Size = Vector2.new(w,h)
             boxoutline.Position = Vector2.new(root.X - box.Size.X / 2,root.Y - box.Size.Y / 2)
@@ -136,7 +147,7 @@ local boxesp = function(player,color)
             
             box.Thickness = 2
             box.Filled = false
-            box.Color = color
+            box.Color = getgenv().BoxColor
             box.Transparency = 1
             box.Size = Vector2.new(w,h)
             box.Position = Vector2.new(root.X - box.Size.X / 2,root.Y - box.Size.Y / 2)
@@ -150,17 +161,68 @@ local boxesp = function(player,color)
         end)
 end
 
+local skeleton = function(Player)
+    local l1 = Drawing.new("Line") l1.Transparency = 1 l1.Thickness = getgenv().Thickness l1.Color = getgenv().Skelesp
+    local l2 = Drawing.new("Line") l2.Transparency = 1 l2.Thickness = getgenv().Thickness l2.Color = getgenv().Skelesp
+    local l3 = Drawing.new("Line") l3.Transparency = 1 l3.Thickness = getgenv().Thickness l3.Color = getgenv().Skelesp
+    local l4 = Drawing.new("Line") l4.Transparency = 1 l4.Thickness = getgenv().Thickness l4.Color = getgenv().Skelesp
+    local l5 = Drawing.new("Line") l5.Transparency = 1 l5.Thickness = getgenv().Thickness l5.Color = getgenv().Skelesp
+    local l6 = Drawing.new("Line") l6.Transparency = 1 l6.Thickness = getgenv().Thickness l6.Color = getgenv().Skelesp
+    local l7 = Drawing.new("Line") l7.Transparency = 1 l7.Thickness = getgenv().Thickness l7.Color = getgenv().Skelesp
+    local l8 = Drawing.new("Line") l8.Transparency = 1 l8.Thickness = getgenv().Thickness l8.Color = getgenv().Skelesp
+    local l9 = Drawing.new("Line") l9.Transparency = 1 l9.Thickness = getgenv().Thickness l9.Color = getgenv().Skelesp
+    
+    
+    local skeletonupdater; skeletonupdater = game:GetService("RunService").RenderStepped:Connect(
+        function()
+        pcall(function()
+            if not Player:IsDescendantOf(workspace) then
+                skeletonupdater:Disconnect()
+                l1:Destroy() l2:Destroy() l3:Destroy() l4:Destroy() l5:Destroy() l6:Destroy() l7:Destroy() l8:Destroy() l9:Destroy()
+            end 
+            local root, vis = workspace.CurrentCamera:WorldToViewportPoint(Player.Torso.CFrame.Position)
+            local head = workspace.CurrentCamera:WorldToViewportPoint(Player.Head.CFrame.Position) local lowertorso = workspace.CurrentCamera:WorldToViewportPoint(Player.LowerTorso.CFrame.Position) local rarm = workspace.CurrentCamera:WorldToViewportPoint(Player.RightUpperArm.CFrame.Position) local rhand = workspace.CurrentCamera:WorldToViewportPoint(Player.RightHand.CFrame.Position) local rleg = workspace.CurrentCamera:WorldToViewportPoint(Player.RightUpperLeg.CFrame.Position) local rfoot = workspace.CurrentCamera:WorldToViewportPoint(Player.RightFoot.CFrame.Position) local lleg = workspace.CurrentCamera:WorldToViewportPoint(Player.LeftUpperLeg.CFrame.Position) local lfoot = workspace.CurrentCamera:WorldToViewportPoint(Player.LeftFoot.CFrame.Position) local larm = workspace.CurrentCamera:WorldToViewportPoint(Player.LeftUpperArm.CFrame.Position) local lhand = workspace.CurrentCamera:WorldToViewportPoint(Player.LeftHand.CFrame.Position)
+    
+            if not vis then
+                l3.Visible = false l2.Visible = false l1.Visible = false l4.Visible = false l5.Visible = false l6.Visible = false l7.Visible = false l8.Visible = false l9.Visible = false
+            end
+			if getgenv().skeletonesp == true then
+            l3.Visible = vis l2.Visible = vis l1.Visible = vis l4.Visible = vis l5.Visible = vis l6.Visible = vis l7.Visible = vis l8.Visible = vis l9.Visible = vis
+			else
+			l3.Visible = false l2.Visible = false l1.Visible = false l4.Visible = false l5.Visible = false l6.Visible = false l7.Visible = false l8.Visible = false l9.Visible = false
+			end
+
+            l9.Color = getgenv().Skelesp l8.Color = getgenv().Skelesp l7.Color = getgenv().Skelesp l6.Color = getgenv().Skelesp l5.Color = getgenv().Skelesp l4.Color = getgenv().Skelesp l3.Color = getgenv().Skelesp l2.Color = getgenv().Skelesp l1.Color = getgenv().Skelesp
+ 
+
+            l1.From = Vector2.new(root.X, root.Y) l1.To = Vector2.new(head.X, head.Y)
+            l6.From = Vector2.new(root.X, root.Y) l6.To = Vector2.new(rarm.X, rarm.Y)
+            l7.From = Vector2.new(root.X, root.Y)  l7.To = Vector2.new(larm.X, larm.Y)
+            l8.From = Vector2.new(root.X, root.Y) l8.To = Vector2.new(lleg.X, lleg.Y)
+            l9.From = Vector2.new(root.X, root.Y) l9.To = Vector2.new(rleg.X, rleg.Y)
+            l3.From = Vector2.new(rarm.X, rarm.Y) l3.To = Vector2.new(rhand.X, rhand.Y)
+            l2.From = Vector2.new(larm.X, larm.Y) l2.To = Vector2.new(lhand.X, lhand.Y)
+            l5.From = Vector2.new(rleg.X, rleg.Y) l5.To = Vector2.new(rfoot.X, rfoot.Y)
+            l4.From = Vector2.new(lleg.X, lleg.Y) l4.To = Vector2.new(lfoot.X, lfoot.Y)
+        end)
+        --runservice loopend
+        end)
+    end
+
+
 for i,v in next,game:GetService('Workspace'):GetChildren() do
     if v:FindFirstChild('Head') then
-        boxesp(v, Color3.new(255, 255, 255))
-		nameesp(v.Head, Color3.new(255, 255, 255))
+        boxesp(v)
+		nameesp(v.Head)
+        skeleton(v)
     end    
 end
 
 workspace.ChildAdded:Connect(function (v)
 	if v:FindFirstChild('Head') then
-		boxesp(v, Color3.new(255, 255, 255))
-		nameesp(v.Head, Color3.new(255, 255, 255))
+		boxesp(v)
+		nameesp(v.Head)
+        skeleton(v)
 	end	
 end)
 
@@ -213,6 +275,7 @@ local visbox = tabs.vis:AddLeftGroupbox('Visuals')
 local orebox = tabs.vis:AddRightTabbox('Ore visuals')
 local settsbox = tabs.setts:AddLeftGroupbox('Settings')
 
+local colorers = orebox:AddTab('ESPColors')
 local ore = orebox:AddTab('Ores')
 local combatmisc = rightmainbox:AddTab('Misc')
 
@@ -271,6 +334,16 @@ visbox:AddToggle('nameesp', {
 	end 
 })
 
+visbox:AddToggle('skelesp', {
+    Text = 'Skeleton',
+    Default = false ,
+    Tooltip = 'Makes everyone get bones',
+
+    Callback = function() 
+		getgenv().skeletonesp = not getgenv().skeletonesp
+	end 
+})
+
 visbox:AddToggle('noleaves', {
     Text = 'Remove leaves',
     Default = false ,
@@ -280,6 +353,39 @@ visbox:AddToggle('noleaves', {
 		getgenv().noleaves = not getgenv().noleaves
 	end 
 })
+
+colorers:AddLabel('Box Color'):AddColorPicker('ColorPicker', {
+    Default = Color3.new(1, 1, 1), -- Bright green
+    Title = 'Box Color', -- Optional. Allows you to have a custom color picker title (when you open it)
+    Transparency = nil, -- Optional. Enables transparency changing for this color picker (leave as nil to disable)
+
+    Callback = function(Value)
+        getgenv().BoxColor = Value
+    end
+})
+
+colorers:AddLabel('Name Color'):AddColorPicker('ColorPicker', {
+    Default = Color3.new(1, 1, 1), -- Bright green
+    Title = 'Name Color', -- Optional. Allows you to have a custom color picker title (when you open it)
+    Transparency = nil, -- Optional. Enables transparency changing for this color picker (leave as nil to disable)
+
+    Callback = function(Value)
+        getgenv().NameColor = Value
+    end
+})
+
+colorers:AddLabel('Skeleton Color'):AddColorPicker('ColorPicker', {
+    Default = Color3.new(1, 1, 1), -- Bright green
+    Title = 'Skeleton Color', -- Optional. Allows you to have a custom color picker title (when you open it)
+    Transparency = nil, -- Optional. Enables transparency changing for this color picker (leave as nil to disable)
+
+    Callback = function(Value)
+        getgenv().Skelesp = Value
+    end
+})
+
+
+
 
 ore:AddToggle('oreesp', {
     Text = 'Ore chams',
