@@ -28,13 +28,13 @@ local Library = {
 
     HudRegistry = {};
 
-    FontColor = theme.textcolor
-    FontColor2 = theme.textborder
+    FontColor = theme.textcolor,
+    FontColor2 = theme.textborder,
     MainColor = Color3.fromRGB(17, 17, 17);
     MainColor2 = Color3.fromRGB(17, 17, 17);
     BackgroundColor = Color3.fromRGB(12, 12, 12);
-    AccentColor = theme.accent
-    OutlineColor = theme.outline
+    AccentColor = theme.accent,
+    OutlineColor = theme.outline,
 
     Black = Color3.new(0, 0, 0);
     Font = Enum.Font.Code;
