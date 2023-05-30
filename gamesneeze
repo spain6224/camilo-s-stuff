@@ -338,22 +338,7 @@ do
     end
     --
     function utility:LoadImage(instance, imageName, imageLink)
-        local data
-        --
-        if isfile(library.folders.assets.."/"..imageName..".png") then
-            data = readfile(library.folders.assets.."/"..imageName..".png")
-        else
-            if imageLink then
-                data = game:HttpGet(imageLink)
-                writefile(library.folders.assets.."/"..imageName..".png", data)
-            else
-                return
-            end
-        end
-        --
-        if data and instance then
-            instance.Data = data
-        end
+        
     end
     --
     function utility:Lerp(instance, instanceTo, instanceTime)
